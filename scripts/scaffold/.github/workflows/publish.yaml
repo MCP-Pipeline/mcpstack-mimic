@@ -1,0 +1,29 @@
+name: Publish (PyPI)
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+          python-version: "3.11"
+      - run: uv venv
+      - run: uv pip install -e .[dev]
+      - run: uv run pytest -q
+      - run: uv build
+      - name: Verify package
+        run: uv run --with twine twine check dist/*
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          print-hash: true
