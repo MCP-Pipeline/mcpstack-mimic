@@ -1,13 +1,12 @@
-<!--suppress HtmlDeprecatedAttribute -->
 <div align="center">
   <h1 align="center">
     <br>
     <a href="#"><img src="assets/COVER.png" alt="MCPStack Tool" width="100%"></a>
     <br>
-    MCPStack Tool Builder
+    MCPStack MIMIC MCP
     <br>
   </h1>
-  <h4 align="center">A Template To Fasten The Creation of MCP-Stack MCP Tools</h4>
+  <h4 align="center">Let Your Favourite LLM Dealing With The SQLs!</h4>
 </div>
 
 <div align="center">
@@ -17,167 +16,192 @@
 </a>
 <img alt="ruff" src="https://img.shields.io/badge/Ruff-lint%2Fformat-9C27B0?style=for-the-badge&logo=ruff&logoColor=white">
 <img alt="python" src="https://img.shields.io/badge/Python-3.9%2B-3776AB?style=for-the-badge&logo=python&logoColor=white">
+<img alt="pytest coverage" src="https://img.shields.io/badge/Coverage-65%25-brightgreen?style=for-the-badge&logo=pytest">
 <img alt="license" src="https://img.shields.io/badge/License-MIT-success?style=for-the-badge">
 
 </div>
 
 > [!IMPORTANT]
 > If you have not been across the MCPStack main orchestrator repository, please start
-> there: [View Org](https://github.com/MCP-Pipeline)
+> there: [View MCPStack](https://github.com/MCP-Pipeline/MCPStack)
 
-## <a id="about-the-project"></a>💡 About The Project
+## <a id="about-the-project"></a>💡 About The MCPStack MIMIC Tool
 
-`MCPStack Tool Builder` is a template repository designed to streamline the creation of `MCPStack` MCP Tools.
-As in, you are using the `MCPStack` main orchestrator repository and wish to create a new MCP tool to pipeline with.
-You can always start from scratch, but certainly, our `MCPStack Tool Builder` will help you get started quickly with a
-solid foundational skeleton builder.
+`MCPStack MIMIC` is an MCP tool that connects the **MIMIC-IV clinical database** (with either SQLite or BigQuery backends) 
+into your **MCPStack pipelines**.
 
-**Wait, what is a Model Context Protocol (MCP) & `MCPStack` — In layman's terms ?**
+In layman's terms:
+* MIMIC-IV is a large, de-identified database of ICU patient records, commonly used for healthcare research.  
+* This tool makes that dataset accessible to an LLM in a controlled way.  
+* It provides actions like *listing available tables*, *showing table structure with sample data*, and *running queries*; all exposed through MCP so your model can reason with healthcare data securely.
 
-The Model Context Protocol (MCP) standardises interactions with machine learning (Large Language) models, 
-enabling tools and libraries to communicate successfully with a uniform workflow. 
+### What is MCPStack, in layman's terms?
 
-On the other hand, `MCPStack` is a framework that implements the protocol, and most importantly, allowing
-developers to create pipelines by stacking MCP tools of interest and launching them all in Claude Desktop. 
-This allows the LLM to use all the tools stacked, and of course, if a tool is not of interest, do not include it in the
-pipeline and the LLM won't have access to it.
+The **Model Context Protocol (MCP)** standardises how tools talk to large language models.  
+`MCPStack` is the orchestrator: it lets you **stack multiple MCP tools together** into a pipeline and then expose them 
+inside an LLM environment (like Claude Desktop).  
+
+Think of it like **scikit-learn pipelines, but for LLMs**:
+
+* In scikit-learn: you chain `preprocessors`, `transformers`, `estimators`.  
+* In MCPStack: you chain MCP tools (like MIMIC, Jupyter Notebook MCP, etc).  
+
+
+>[!IMPORTANT]
+> This MCP has been made possible thanks to the `M3` original work by @rafiattrach, @rajna-fani, @MoreiraP12
+> Under Dr. Leo Celi's supervision at MIT Lab for Computational Physiology. Following a first pull request of
+> MCPStack to `M3`, we realised that we needed to externalise MCPStack to make it more modular and reusable
+> across different use-cases. As such, MCPStack MIMIC is a copy of the original `M3` codebase, with adjustments
+> only based on how how MCPStack works, and how it is structured.
+
+---
 
 ## Installation
 
-> [!NOTE]
-> As this repository is a template, you can always create a new repository from this template. Use 
-> the "Use this template" button on the top right of the GitHub UI to create a new repository based on this template.
+You can install the MIMIC tool as a standalone package. Thanks to `pyproject.toml` entry points, MCPStack 
+will auto-discover it.
 
-Meanwhile, you may alos clone this repository and install it locally to start building your own `MStack` MCP tool.
-
-### Clone the repository
+### PyPI Installation Via `UV`
 
 ```bash
-git clone https://github.com/MCP-Pipeline/MCPStack-Tool-Builder.git
-cd MCPStack-Tool-Builder
+uv add mcpstack_mimic
 ```
 
-### Install dependencies
-
-Using `UV` (recommended —— See official [UV documentation for installation of UV](https://uv.dev/docs/)):
+### PyPI Installation Via `pip`
 
 ```bash
-uv sync
+pip install mcpstack-mimic
 ```
 
-Using `pip`:
+### Install pre-commit hooks (optional, for development)
 
-```bash
-pip install -e .[dev]
-```
-
-### Install pre-commit hooks
-
-Via `UV`:
-
-```bash
+```bash 
 uv run pre-commit install
-```
+# or pip install pre-commit
+``` 
 
-Via `pip`:
-
-```bash
-pre-commit install
-```
-
-## Create Your Tool's Skeleton
-
-Once dependencies are installed, you can use the `mcpstack_tool` CLI to bootstrap and customise your tool’s skeleton.  
-Every commands is run with `uv run mcpstack_tool.py` or `python mcpstack_tool.py` if you are not using `UV`, followed by the command you want to run; as follows:
-
-<img src="assets/readme/help.gif" width="61.8%" align="left" style="border-radius: 10px;"/>
-
-### `Help` Banner
-
-Run with `--help` or `-h` to display the banner and see all available commands.
+### Run Unit Tests (optional, for development)
 
 ```bash
-uv run mcpstack_tool.py --help
+uv run pytest
 ```
 
-<br clear="left">
+---
 
-<br />
+## 🔌 Using With MCPStack
 
-<img src="assets/readme/init.gif" width="61.8%" align="right" style="border-radius: 10px;"/>
+The `MIMIC` tool is auto-registered in MCPStack through its entry points:
 
-### `Init`
+```toml
+[project.entry-points."mcpstack.tools"]
+mimic = "mcpstack_mimic.tools.mimic.mimic:MIMIC"
+```
 
-init starts an interactive prompt command-line-based process to generate your tool configuration.
-It will ask you for values like `tool_slug`, `class_name`, and `env_prefix`.
+That means MCPStack will “see” it without any extra configuration.
 
+### Initialise the database
 
-<br clear="right">
+For SQLite (demo dataset by default):
 
-<br />
+```bash
+uv run mcpstack tools mimic init --dataset mimic-iv-demo
+```
 
-<img src="assets/readme/preview.gif" width="61.8%" align="left" style="border-radius: 10px;"/>
+This downloads and prepares the dataset locally.
 
-### `Preview`
+### Configure the tool
 
-preview shows you the replacements that would be applied across the codebase and displays an example diff.
-Note this could be also run from the `init`.
+Pick a backend (SQLite or BigQuery):
 
-<br clear="left">
+```bash
+uv run mcpstack tools mimic configure --backend sqlite --db-path ./mimic.db
+```
 
-<br />
+or
 
-<img src="assets/readme/apply.gif" width="61.8%" align="right" style="border-radius: 10px;"/>
+```bash
+uv run mcpstack tools mimic configure --backend bigquery --project-id <YOUR_GCP_PROJECT>
+```
 
-### `Apply`
+This generates a `mimic_config.json` you can later feed into pipelines.
 
-Once happy, use apply to perform replacements and rename the package directory. Note this could be also run from the `init`.
+### Check status
 
-<br clear="right">
+```python
+uv run mcpstack tools mimic status
+```
 
-<br />
+>[!NOTE]
+> We favourite `uv` for running MCPStack commands, but you can also use `mcpstack` directly if installed globally
+> with `pip install mcpstack`.
 
-<img src="assets/readme/validate.gif" width="61.8%" align="left" style="border-radius: 10px;"/>
+---
 
-### `Validate`
+## 🖇️ Build A Pipeline With MIMIC
 
-Run validate to ensure placeholders were replaced correctly (or to check if any remain).
+Now that the tool is installed and configured, add it to your pipeline:
 
-<br clear="left">
+### Default MIMIC Pipeline (Runs with demo MIMIC dataset)
 
-<br />
+```bash
+uv run mcpstack pipeline mimic --new-pipeline my_pipeline.json
+```
 
-<img src="assets/readme/reset.gif" width="61.8%" align="right" style="border-radius: 10px;"/>
+### Create a new pipeline and add MIMIC previously custom-configured
 
-### `Reset` (Optional)
+```bash
+uv run mcpstack pipeline mimic --new-pipeline my_pipeline.json --tool-config mimic_config.json
+```
 
-Need to start fresh? Restore everything back from the scaffold with reset.
+Or append to an existing pipeline
 
-> [!CAUTION]
-> ⚠️ Use --hard to overwrite files directly.
+```bash
+uv run mcpstack pipeline mimic --to-pipeline existing_pipeline.json --tool-config mimic_config.json
+```
 
-<br clear="right">
+### Run it inside Claude Desktop
 
-<br />
+```bash
+uv run mcpstack build --pipeline my_pipeline.json
+```
 
-<img src="assets/readme/doctor.gif" width="61.8%" align="left" style="border-radius: 10px;"/>
+Your LLM can now use the MIMIC tool in conversation, with secure access to the clinical dataset.
+Open Claude Desktop, and tada!
 
-### `Doctor`
+---
 
-Finally, check the health of your repository with doctor.
-It reports `package dirs`, `entry points`, and `placeholder` status.
+## 📖 Programmatic API
 
-<br />
-<br />
-<br />
+```python
+from mcpstack_mimic.tools.mimic.mimic import MIMIC
+from mcpstack_mimic.tools.mimic.backend.backends.sqlite import SQLiteBackend
+from mcpstack.stack import MCPStackCore
 
-Here you go! 🎉 You now have a working `MCPStack` tool skeleton ready to customise.
-From here, edit `src/mcpstack_<your_tool_name>/tool.py` with the actions your MCP is aimed to be doing,
-and `cli.py` to implement your configurability logic. Remove a couple of files and folders not necessary as per the template
-and you may be good to go to submit this to the org or to play with it yourself!
+pipeline = (
+    MCPStackCore() #define =config if needed
+    .with_tool(MIMIC(
+        backends=[
+            SQLiteBackend("<path_to_your_mimic.db>")  # SQLite backend with local MIMIC-IV database
+        ])
+    # Here you can add as many as new `.with_tool(.)` of interest to play with.    
+    ).build(
+        type="fastmcp",
+        save_path="my_mimic_pipeline.json",
+    ).run()
+)
+```
 
-Refer to the `MCPStack` documentation for more details on how to implement your tool logic.
+>[!IMPORTANT]
+> The current repository has (1) technical debts, as in it would benefit from a refactor to make it maybe less messy; for instance, organising the actions into specific files. (2) a lack of documentation, the readme could deserve more in depth exploration of all the possible configurations, explore the code if you are a developer ; it is a little codebase.
+> Pull Requests are more than welcome to minimise the tech debts and improve the documentation.
 
-## 🔐 License
+---
+
+## 📽️ Video Demo
+
+<video src="https://github.com/user-attachments/assets/e13c4a56-0fe9-41be-b789-407355fe1f4a" width="320" height="240" controls></video>
+
+🔐 License
 
 MIT — see **[LICENSE](LICENSE)**.
+
