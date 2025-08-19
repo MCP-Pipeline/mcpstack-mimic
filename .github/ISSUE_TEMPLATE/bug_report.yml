@@ -121,7 +121,7 @@ body:
     id: tool-version
     attributes:
       label: "mcpstack-tool-builder Version"
-      description: What version are you using? If cloned, paste the commit SHA: `git rev-parse --short HEAD`.
+      description: What version are you using? If cloned, paste the commit SHA.
       placeholder: "e.g., 0.1.0"
     validations:
       required: true
