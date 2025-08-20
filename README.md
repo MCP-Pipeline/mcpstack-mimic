@@ -48,7 +48,7 @@ Think of it like **scikit-learn pipelines, but for LLMs**:
 
 
 >[!IMPORTANT]
-> This MCP has been made possible thanks to the `M3` original work by @rafiattrach, @rajna-fani, @MoreiraP12
+> This MCP has been made possible thanks to the `M3` original work by [@rafiattrach](https://github.com/rafiattrach), [@rajna-fani](https://github.com/rajna-fani), [@MoreiraP12](https://github.com/MoreiraP12)
 > Under Dr. Leo Celi's supervision at MIT Lab for Computational Physiology. Following a first pull request of
 > MCPStack to `M3`, we realised that we needed to externalise MCPStack to make it more modular and reusable
 > across different use-cases. As such, MCPStack MIMIC is a copy of the original `M3` codebase, with adjustments
