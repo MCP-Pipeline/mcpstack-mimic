@@ -1,29 +1,84 @@
-#name: Publish (PyPI)
-#
-#on:
-#  release:
-#    types: [published]
-#  workflow_dispatch:
-#
-#jobs:
-#  build-publish:
-#    runs-on: ubuntu-latest
-#    permissions:
-#      id-token: write
-#      contents: read
-#    steps:
-#      - uses: actions/checkout@v4
-#      - uses: astral-sh/setup-uv@v5
-#        with:
-#          version: "latest"
-#          python-version: "3.11"
-#      - run: uv venv
-#      - run: uv pip install -e .[dev]
-#      - run: uv run pytest -q
-#      - run: uv build
-#      - name: Verify package
-#        run: uv run --with twine twine check dist/*
-#      - name: Publish to PyPI
-#        uses: pypa/gh-action-pypi-publish@release/v1
-#        with:
-#          print-hash: true
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/mcpstack_mimic
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up uv
+      uses: astral-sh/setup-uv@v5
+      with:
+        version: "latest"
+        python-version: "3.11"
+
+    - name: Resolve version
+      id: get_version
+      run: |
+        set -euo pipefail
+        if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+          VERSION="${GITHUB_REF#refs/tags/}"
+          VERSION="${VERSION#v}"
+          FROM=tag
+        else
+          VERSION=$(python -c "import re,pathlib; p=pathlib.Path('src/mcpstack_mimic/__init__.py'); m=re.search(r'__version__\\s*=\\s*\"([^\"]+)\"', p.read_text()); print(m.group(1) if m else '')")
+          FROM=init
+          if [[ -z "$VERSION" ]]; then
+            echo "::error ::Could not determine version from src/mcpstack_mimic/__init__.py"; exit 1
+          fi
+        fi
+        echo "from=$FROM" >> "$GITHUB_OUTPUT"
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+        echo "Publishing version: $VERSION (source: $FROM)"
+
+    - name: Verify version consistency
+      run: |
+        set -euo pipefail
+        INIT_VER=$(grep -Po '__version__\s*=\s*"\K[^"]+' src/mcpstack_mimic/__init__.py)
+        echo "__init__ version: $INIT_VER"
+        echo "resolved version: ${{ steps.get_version.outputs.version }}"
+        if [[ "${GITHUB_REF:-}" == refs/tags/* ]]; then
+          # If triggered by a tag/release, require that the tag matches the version in __init__.py
+          if [[ "$INIT_VER" != "${{ steps.get_version.outputs.version }}" ]]; then
+            echo "::error ::Version mismatch: tag ${{ steps.get_version.outputs.version }} != src/mcpstack_mimic/__init__.py $INIT_VER";
+            exit 1
+          fi
+        fi
+
+    - name: Lock dependencies
+      run: uv lock --locked
+
+    - name: Sync dependencies including dev
+      run: uv sync --all-groups
+
+    - name: Run quick tests
+      run: |
+        uv add pytest==7.4.3
+        uv add pytest-asyncio
+        uv run pytest tests/ -v --tb=short
+
+    - name: Build package
+      run: uv build
+
+    - name: Verify package
+      run: uv run --with twine twine check dist/*
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        print-hash: true

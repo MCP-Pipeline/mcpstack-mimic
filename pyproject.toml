@@ -4,7 +4,7 @@ build-backend = "pdm.backend"
 
 [project]
 name = "mcpstack-mimic"
-version = "0.1.0"
+dynamic = ["version"]
 description = "MIMIC-IV MCPStack tool (standalone package) with pluggable SQLite/BigQuery backends."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -33,7 +33,7 @@ dependencies = [
   "thefuzz>=0.22.1",
   "rich-pyfiglet>=0.1.4",
   "click==8.1.8",
-  "mcpstack",
+  "mcpstack>=0.0.2",
 ]
 
 [dependency-groups]
@@ -55,6 +55,10 @@ mimic = "mcpstack_mimic.tools.mimic.mimic:MIMIC"
 [project.entry-points."mcpstack.tool_clis"]
 mimic = "mcpstack_mimic.tools.mimic.cli:MimicCLI.get_app"
 
+[tool.pdm.version]
+source = "file"
+path = "src/mcpstack_mimic/__init__.py"
+
 [tool.ruff]
 line-length = 88
 target-version = "py310"
@@ -67,6 +71,3 @@ ignore = ["E501"]
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-
-[tool.uv.sources]
-mcpstack = { path = "../MCPStack" }

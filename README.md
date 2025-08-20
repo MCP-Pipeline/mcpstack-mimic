@@ -27,24 +27,24 @@
 
 ## <a id="about-the-project"></a>💡 About The MCPStack MIMIC Tool
 
-`MCPStack MIMIC` is an MCP tool that connects the **MIMIC-IV clinical database** (with either SQLite or BigQuery backends) 
+`MCPStack MIMIC` is an MCP tool that connects the **MIMIC-IV clinical database** (with either SQLite or BigQuery backends)
 into your **MCPStack pipelines**.
 
 In layman's terms:
-* MIMIC-IV is a large, de-identified database of ICU patient records, commonly used for healthcare research.  
-* This tool makes that dataset accessible to an LLM in a controlled way.  
+* MIMIC-IV is a large, de-identified database of ICU patient records, commonly used for healthcare research.
+* This tool makes that dataset accessible to an LLM in a controlled way.
 * It provides actions like *listing available tables*, *showing table structure with sample data*, and *running queries*; all exposed through MCP so your model can reason with healthcare data securely.
 
 ### What is MCPStack, in layman's terms?
 
-The **Model Context Protocol (MCP)** standardises how tools talk to large language models.  
-`MCPStack` is the orchestrator: it lets you **stack multiple MCP tools together** into a pipeline and then expose them 
-inside an LLM environment (like Claude Desktop).  
+The **Model Context Protocol (MCP)** standardises how tools talk to large language models.
+`MCPStack` is the orchestrator: it lets you **stack multiple MCP tools together** into a pipeline and then expose them
+inside an LLM environment (like Claude Desktop).
 
 Think of it like **scikit-learn pipelines, but for LLMs**:
 
-* In scikit-learn: you chain `preprocessors`, `transformers`, `estimators`.  
-* In MCPStack: you chain MCP tools (like MIMIC, Jupyter Notebook MCP, etc).  
+* In scikit-learn: you chain `preprocessors`, `transformers`, `estimators`.
+* In MCPStack: you chain MCP tools (like MIMIC, Jupyter Notebook MCP, etc).
 
 
 >[!IMPORTANT]
@@ -58,7 +58,7 @@ Think of it like **scikit-learn pipelines, but for LLMs**:
 
 ## Installation
 
-You can install the MIMIC tool as a standalone package. Thanks to `pyproject.toml` entry points, MCPStack 
+You can install the MIMIC tool as a standalone package. Thanks to `pyproject.toml` entry points, MCPStack
 will auto-discover it.
 
 ### PyPI Installation Via `UV`
@@ -75,10 +75,10 @@ pip install mcpstack-mimic
 
 ### Install pre-commit hooks (optional, for development)
 
-```bash 
+```bash
 uv run pre-commit install
 # or pip install pre-commit
-``` 
+```
 
 ### Run Unit Tests (optional, for development)
 
@@ -183,7 +183,7 @@ pipeline = (
         backends=[
             SQLiteBackend("<path_to_your_mimic.db>")  # SQLite backend with local MIMIC-IV database
         ])
-    # Here you can add as many as new `.with_tool(.)` of interest to play with.    
+    # Here you can add as many as new `.with_tool(.)` of interest to play with.
     ).build(
         type="fastmcp",
         save_path="my_mimic_pipeline.json",
@@ -204,4 +204,3 @@ pipeline = (
 🔐 License
 
 MIT — see **[LICENSE](LICENSE)**.
-
