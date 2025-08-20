@@ -1,3 +1,5 @@
+[![MSeeP.ai Security Assessment Badge](https://mseep.net/pr/mcp-pipeline-mcpstack-mimic-badge.png)](https://mseep.ai/app/mcp-pipeline-mcpstack-mimic)
+
 <div align="center">
   <h1 align="center">
     <br>
