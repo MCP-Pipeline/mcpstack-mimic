@@ -64,7 +64,7 @@ will auto-discover it.
 ### PyPI Installation Via `UV`
 
 ```bash
-uv add mcpstack_mimic
+uv add mcpstack-mimic
 ```
 
 ### PyPI Installation Via `pip`
